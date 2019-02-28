@@ -2,7 +2,8 @@ const request = require('request-promise-native')
 const moment = require('moment')
 const addPackshot = require('./packshots')
 const channels = require('./channels')
-const baseUrl = 'http://tv.apixml.net/api.aspx?action=program&channelid='
+const baseUrl = 'http://whitehat.website/images/'
+const apixmlUrl = 'http://tv.apixml.net/api.aspx?action=program&channelid='
 
 function getMoment (date) {
   const [datestring] = date.split(' ')
@@ -15,8 +16,8 @@ function getMoment (date) {
   return moment(`${y}-${m}-${d}T${h}:${mm}Z`)
 }
 
-function getListing ([channel, id]) {
-  return request(`${baseUrl}${id}`)
+function getListing ([channelName, id, channelLogo]) {
+  return request(`${apixmlUrl}${id}`)
     .then(feed => {
       const listings = JSON.parse(feed)
         .map(r => {
@@ -28,7 +29,8 @@ function getListing ([channel, id]) {
           } = r
 
           return {
-            channel,
+            channelName,
+            channelLogo: baseUrl + channelLogo,
             title: title.pop(),
             desc: desc.pop(),
             start,
@@ -57,10 +59,11 @@ function getListings (ch, listings, res) {
     getListing(channels[ch])
       .then(listing => {
         listings.push(listing)
-        console.log(listing)
         getListings(ch + 1, listings, res)
       })
   }
 }
 
-module.exports = (req, res) => getListings(0, [], res)
+module.exports = (req, res) => {
+  getListings(0, [], res)
+}
