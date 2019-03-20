@@ -2,7 +2,7 @@ const request = require('request-promise-native')
 const moment = require('moment')
 const addPackshot = require('./packshots')
 const channels = require('./channels')
-const baseUrl = 'http://whitehat.website/images/'
+const baseUrl = `${process.env.VIRTUAL_HOST || 'localhost:8000'}/images/`
 const apixmlUrl = 'http://tv.apixml.net/api.aspx?action=program&channelid='
 
 function getMoment (date) {
@@ -13,20 +13,22 @@ function getMoment (date) {
   const h = datestring.substring(8, 10)
   const mm = datestring.substring(10, 12)
 
-  return moment(`${y}-${m}-${d}T${h}:${mm}Z`)
+  const parsed = moment(`${y}-${m}-${d}T${h}:${mm}Z`)
+  return parsed.isValid() ? parsed : new Error('invalid date')
 }
 
 function getListing ([channelName, id, channelLogo]) {
   return request(`${apixmlUrl}${id}`)
     .then(feed => {
       const listings = JSON.parse(feed)
-        .map(r => {
+      .map(r => {
           const {
             title: { Text: title },
             desc: { Text: desc },
             start,
             stop
           } = r
+
 
           return {
             channelName,
@@ -64,6 +66,9 @@ function getListings (ch, listings, res) {
   }
 }
 
-module.exports = (req, res) => {
-  getListings(0, [], res)
+module.exports = {
+  getMoment,
+  getListing,
+  getListings,
+  notEmpty
 }
