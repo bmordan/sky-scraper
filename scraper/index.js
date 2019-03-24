@@ -53,7 +53,7 @@ const splitDateStr = dateStr => {
 
 const createMoment = dateStr => {
   const [y, m, d, h, mm] = splitDateStr(dateStr)
-  return moment(`${y}-${m}-${d}T${h}:${mm}`).format('YYYY-MM-DDThh:mm')
+  return moment(`${y}-${m}-${d}T${h}:${mm}`)
 }
 
 const generateCache = ready => {
@@ -117,7 +117,7 @@ class Sky extends EventEmitter {
     
     return Object.keys(this.channels).map(id => {
       const {channelId, channelName, channelIcon, programmes } = this.channels[id]
-      const programme = programmes.find(({start, stop}) => now.isBetween(start, stop))
+      const programme = programmes.find(({start, stop}) => now.isBetween(moment(start), moment(stop)))
       return { channelId, channelName, channelIcon, programme }
     })
   }
