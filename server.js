@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const Sky = require('./scrapper')
+const Sky = require('./scraper')
 const sky = new Sky()
 const PORT = process.env.PORT || 8000
 
