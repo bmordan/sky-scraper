@@ -129,7 +129,7 @@ class Sky extends EventEmitter {
   _addPackshot (channels, done) {
     const self = this
     if (!channels.length) {
-      return done()
+      return done.call(self)
     } else {
       const channelId = channels.pop()
       const { channelName, programmes } = this.channels[channelId]
@@ -146,19 +146,11 @@ class Sky extends EventEmitter {
     }
   }
 
-  _ready (channels, event) {
-    event = event || 'ready'
+  _ready (channels) {
     this.channels = channels
     this._addPackshot(Object.keys(this.channels), () => {
-      this.emit(event, this.channels)
+      this.emit('ready', this.channels)
     })
-    this.cron = schedule.scheduleJob('* * 4 * * *', () => {
-      this.go(this._refresh)
-    })
-  }
-
-  _refresh (channels) {
-    this._ready(channels, 'refresh')
   }
 
   go (onReady) {
